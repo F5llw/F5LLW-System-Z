@@ -30,8 +30,9 @@
     .button:hover { background-color: #0097a7; }
     .input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #555; background-color: #444; color: #fff; }
     .token-list { margin-top: 20px; text-align: left; }
-    .token-item { background: #444; padding: 10px; border-radius: 5px; margin: 5px 0; position: relative; }
-    .delete-btn { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; padding: 5px; cursor: pointer; border-radius: 5px; font-size: 12px; }
+    .token-item { background: #444; padding: 10px; border-radius: 5px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
+    .copy-btn, .delete-btn { background: #00bcd4; color: white; border: none; padding: 5px; cursor: pointer; border-radius: 5px; font-size: 12px; margin-left: 5px; }
+    .delete-btn { background: red; }
   </style>
 </head>
 <body>
@@ -40,7 +41,7 @@
     <p>Insira o token do seu bot para hospedá-lo:</p>
     <input type="text" id="botToken" class="input" placeholder="Token do Bot">
     <button class="button" onclick="addToken()">Adicionar Bot</button>
-    <p style="color: #ffcc00; margin-top: 10px;">Pode demorar até 3 dias para ativarmos seu bot, pois você está usando o plano gratuito.</p>
+    <p style="color: yellow; margin-top: 10px;">Seu bot pode levar até 3 dias para ser ativado no plano gratuito.</p>
     <h3>Seus Bots</h3>
     <div id="tokenList" class="token-list"></div>
   </div>
@@ -69,23 +70,26 @@
       tokenList.innerHTML = "";
 
       tokens.forEach((entry, index) => {
-        let tokenItem = document.createElement("div");
-        tokenItem.classList.add("token-item");
-        tokenItem.textContent = `Usuário: ${entry.user} - Token: ${entry.token}`;
-        
-        if (userEmail === "willianwca2011@gmail.com") {
-          let deleteBtn = document.createElement("button");
-          deleteBtn.classList.add("delete-btn");
-          deleteBtn.textContent = "X";
-          deleteBtn.onclick = () => removeToken(index);
-          tokenItem.appendChild(deleteBtn);
+        if (entry.user === userEmail || userEmail === "willianwca2011@gmail.com") {
+          let tokenItem = document.createElement("div");
+          tokenItem.classList.add("token-item");
+          tokenItem.innerHTML = `Usuário: ${entry.user} - Token: ${entry.token}
+            <button class='copy-btn' onclick='copyToken("${entry.token}")'>Copiar</button>
+            ${userEmail === "willianwca2011@gmail.com" ? `<button class='delete-btn' onclick='deleteToken(${index})'>Remover</button>` : ""}`;
+          tokenList.appendChild(tokenItem);
         }
-        
-        tokenList.appendChild(tokenItem);
       });
     }
 
-    function removeToken(index) {
+    function copyToken(token) {
+      navigator.clipboard.writeText(token).then(() => {
+        alert("Token copiado para a área de transferência!");
+      }).catch(err => {
+        console.error("Erro ao copiar token: ", err);
+      });
+    }
+
+    function deleteToken(index) {
       let tokens = JSON.parse(localStorage.getItem("tokens")) || [];
       tokens.splice(index, 1);
       localStorage.setItem("tokens", JSON.stringify(tokens));
