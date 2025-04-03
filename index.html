@@ -15,6 +15,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      box-sizing: border-box;
     }
     .container {
       max-width: 500px;
@@ -53,6 +54,10 @@
       color: #f44336;
       display: none;
     }
+    .token-list {
+      margin-top: 20px;
+      text-align: left;
+    }
     .token-item {
       background: #333;
       padding: 10px;
@@ -62,7 +67,7 @@
       justify-content: space-between;
       align-items: center;
     }
-    .copy-button, .delete-button {
+    .delete-button {
       background: #f44336;
       border: none;
       color: white;
@@ -70,7 +75,6 @@
       cursor: pointer;
       border-radius: 5px;
     }
-    .copy-button { background: #4CAF50; }
   </style>
 </head>
 <body>
@@ -104,35 +108,28 @@
     async function hashPassword(password) {
       const encoder = new TextEncoder();
       const data = encoder.encode(password);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(hashBuffer)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(hash)).map(byte => byte.toString(16).padStart(2, '0')).join('');
     }
 
     async function handleRegister() {
-      const email = document.getElementById("regEmail").value.trim();
-      const password = document.getElementById("regPassword").value.trim();
-      if (!email || !password) return alert("Preencha todos os campos!");
-      
+      const email = document.getElementById("regEmail").value;
+      const password = await hashPassword(document.getElementById("regPassword").value);
       let users = JSON.parse(localStorage.getItem("users")) || [];
       if (users.some(user => user.email === email)) {
         document.getElementById("registerError").style.display = "block";
         return;
       }
-      
-      const hashedPassword = await hashPassword(password);
-      users.push({ email, password: hashedPassword, tokens: [] });
+      users.push({ email, password, tokens: [] });
       localStorage.setItem("users", JSON.stringify(users));
       showLogin();
     }
 
     async function handleLogin() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const hashedPassword = await hashPassword(password);
-      
+      const email = document.getElementById("email").value;
+      const password = await hashPassword(document.getElementById("password").value);
       let users = JSON.parse(localStorage.getItem("users")) || [];
-      let user = users.find(user => user.email === email && user.password === hashedPassword);
-      
+      let user = users.find(user => user.email === email && user.password === password);
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
         showDashboard();
@@ -141,32 +138,28 @@
       }
     }
 
-    function addToken() {
-      let user = JSON.parse(localStorage.getItem("user"));
-      let users = JSON.parse(localStorage.getItem("users")) || [];
-      let token = document.getElementById("tokenInput").value.trim();
-      if (!token) return alert("Insira um token válido!");
-      
-      let userIndex = users.findIndex(u => u.email === user.email);
-      if (userIndex === -1) return;
-      if (users[userIndex].tokens.length >= 10) return alert("Máximo de 10 tokens!");
-      
-      users[userIndex].tokens.push(token);
-      localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("user", JSON.stringify(users[userIndex]));
+    function showRegister() {
+      document.getElementById("registerPage").style.display = "block";
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("dashboard").style.display = "none";
+    }
+
+    function showLogin() {
+      document.getElementById("registerPage").style.display = "none";
+      document.getElementById("loginPage").style.display = "block";
+      document.getElementById("dashboard").style.display = "none";
+    }
+
+    function showDashboard() {
+      document.getElementById("registerPage").style.display = "none";
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
       loadTokens();
     }
 
-    function loadTokens() {
-      let user = JSON.parse(localStorage.getItem("user"));
-      let tokenList = document.getElementById("tokenList");
-      tokenList.innerHTML = user.tokens.map((token, index) => `
-        <div class="token-item">
-          <span>${token.slice(0, 10)}...</span>
-          <button class="copy-button" onclick="navigator.clipboard.writeText('${token}')">Copiar</button>
-          <button class="delete-button" onclick="removeToken(${index})">Remover</button>
-        </div>
-      `).join('');
+    function logout() {
+      localStorage.removeItem("user");
+      showLogin();
     }
   </script>
 </body>
