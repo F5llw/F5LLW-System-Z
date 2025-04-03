@@ -53,14 +53,15 @@
     .error-message {
       color: #f44336;
       display: none;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div id="registerPage" class="container">
     <h2>Registrar-se</h2>
-    <input type="email" id="regEmail" class="input" placeholder="Email" />
-    <input type="password" id="regPassword" class="input" placeholder="Senha" />
+    <input type="email" id="regEmail" class="input" placeholder="Email" oninput="hideError('registerError')" />
+    <input type="password" id="regPassword" class="input" placeholder="Senha" oninput="hideError('registerError')" />
     <button class="button" onclick="handleRegister()">Registrar</button>
     <p class="error-message" id="registerError">Usuário já registrado!</p>
     <p>Já tem uma conta? <a href="#" onclick="showLogin(); return false;">Faça login</a></p>
@@ -68,8 +69,8 @@
 
   <div id="loginPage" class="container" style="display: none;">
     <h2>Login</h2>
-    <input type="email" id="email" class="input" placeholder="Email" />
-    <input type="password" id="password" class="input" placeholder="Senha" />
+    <input type="email" id="email" class="input" placeholder="Email" oninput="hideError('loginError')" />
+    <input type="password" id="password" class="input" placeholder="Senha" oninput="hideError('loginError')" />
     <button class="button" onclick="handleLogin()">Entrar</button>
     <p class="error-message" id="loginError">Email ou senha incorretos!</p>
     <p>Não tem conta? <a href="#" onclick="showRegister(); return false;">Cadastre-se</a></p>
@@ -82,28 +83,45 @@
 
   <script>
     function handleRegister() {
-      const email = document.getElementById("regEmail").value;
-      const password = document.getElementById("regPassword").value;
-      let users = JSON.parse(localStorage.getItem("users")) || [];
-      if (users.some(user => user.email === email)) {
-        document.getElementById("registerError").style.display = "block";
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
+      
+      if (!email || !password) {
+        showError('registerError', 'Preencha todos os campos!');
         return;
       }
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      if (users.some(user => user.email === email)) {
+        showError('registerError', 'Usuário já registrado!');
+        return;
+      }
+
       users.push({ email, password });
       localStorage.setItem("users", JSON.stringify(users));
+
+      alert("Cadastro realizado com sucesso!");
+      clearInputs(['regEmail', 'regPassword']);
       showLogin();
     }
 
     function handleLogin() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      
+      if (!email || !password) {
+        showError('loginError', 'Preencha todos os campos!');
+        return;
+      }
+
       let users = JSON.parse(localStorage.getItem("users")) || [];
       let user = users.find(user => user.email === email && user.password === password);
+
       if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
         showDashboard();
+        clearInputs(['email', 'password']);
       } else {
-        document.getElementById("loginError").style.display = "block";
+        showError('loginError', 'Email ou senha incorretos!');
       }
     }
 
@@ -126,8 +144,21 @@
     }
 
     function logout() {
-      localStorage.removeItem("user");
       showLogin();
+    }
+
+    function showError(id, message) {
+      const errorElement = document.getElementById(id);
+      errorElement.textContent = message;
+      errorElement.style.display = "block";
+    }
+
+    function hideError(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    function clearInputs(ids) {
+      ids.forEach(id => document.getElementById(id).value = "");
     }
   </script>
 </body>
