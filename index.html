@@ -84,7 +84,7 @@
     <input type="password" id="regPassword" class="input" placeholder="Senha" />
     <button class="button" onclick="handleRegister()">Registrar</button>
     <p class="error-message" id="registerError">Usuário já registrado!</p>
-    <p>Já tem uma conta? <a href="#" onclick="showLogin()">Faça login</a></p>
+    <p>Já tem uma conta? <a href="#" onclick="showLogin(); return false;">Faça login</a></p>
   </div>
 
   <div id="loginPage" class="container" style="display: none;">
@@ -93,7 +93,7 @@
     <input type="password" id="password" class="input" placeholder="Senha" />
     <button class="button" onclick="handleLogin()">Entrar</button>
     <p class="error-message" id="loginError">Email ou senha incorretos!</p>
-    <p>Não tem conta? <a href="#" onclick="showRegister()">Cadastre-se</a></p>
+    <p>Não tem conta? <a href="#" onclick="showRegister(); return false;">Cadastre-se</a></p>
   </div>
 
   <div id="dashboard" class="container" style="display: none;">
