@@ -25,9 +25,41 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       text-align: center;
     }
-    .button { width: 100%; padding: 10px; background-color: #00bcd4; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+    .button { 
+      width: 100%; 
+      padding: 10px; 
+      background-color: #00bcd4; 
+      color: #fff; 
+      border: none; 
+      border-radius: 5px; 
+      cursor: pointer; 
+      margin-top: 10px; 
+    }
     .button:hover { background-color: #0097a7; }
-    .input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #555; background-color: #444; color: #fff; }
+    .input { 
+      width: 100%; 
+      padding: 10px; 
+      margin: 10px 0; 
+      border-radius: 5px; 
+      border: 1px solid #555; 
+      background-color: #444; 
+      color: #fff; 
+    }
+    .fixed-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00bcd4;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .fixed-button:hover {
+      background-color: #0097a7;
+    }
   </style>
 </head>
 <body>
@@ -57,6 +89,9 @@
     <p><a href="hospedagem.html">Só irei hospedar Bot</a></p>
     <button class="button" onclick="logout()">Sair</button>
   </div>
+
+  <!-- Botão fixo para Planos.html -->
+  <button class="fixed-button" onclick="window.location.href='Planos.html'">Ver Planos</button>
 
   <script>
     let currentUser = null;
@@ -96,7 +131,7 @@
       let user = users.find(user => user.email === email && user.password === password);
       if (user) {
         alert("Login bem-sucedido!");
-        localStorage.setItem("userEmail", user.email); // Armazena o email do usuário logado
+        localStorage.setItem("userEmail", user.email);
         showDashboard(user);
       } else {
         alert("Email ou senha incorretos!");
