@@ -54,27 +54,6 @@
       color: #f44336;
       display: none;
     }
-    .token-list {
-      margin-top: 20px;
-      text-align: left;
-    }
-    .token-item {
-      background: #333;
-      padding: 10px;
-      border-radius: 5px;
-      margin: 5px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .delete-button {
-      background: #f44336;
-      border: none;
-      color: white;
-      padding: 5px 10px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
   </style>
 </head>
 <body>
@@ -97,10 +76,8 @@
   </div>
 
   <div id="dashboard" class="container" style="display: none;">
-    <h2>Armazenamento de Tokens</h2>
-    <input type="text" id="tokenInput" class="input" placeholder="Cole seu token aqui" />
-    <button class="button" onclick="addToken()">Adicionar Token</button>
-    <div class="token-list" id="tokenList"></div>
+    <h2>Bem-vindo ao Painel</h2>
+    <p>Você está logado!</p>
     <button class="button" onclick="logout()">Sair</button>
   </div>
 
@@ -120,7 +97,7 @@
         document.getElementById("registerError").style.display = "block";
         return;
       }
-      users.push({ email, password, tokens: [] });
+      users.push({ email, password });
       localStorage.setItem("users", JSON.stringify(users));
       showLogin();
     }
@@ -154,7 +131,6 @@
       document.getElementById("registerPage").style.display = "none";
       document.getElementById("loginPage").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
-      loadTokens();
     }
 
     function logout() {
