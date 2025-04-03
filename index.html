@@ -66,6 +66,24 @@
       background-color: #3a3d42;
       border-radius: 8px;
     }
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #555;
+    }
+    .delete-btn {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: #d32f2f;
+    }
   </style>
 </head>
 <body>
@@ -135,11 +153,31 @@
       let userList = document.getElementById("userList");
       userList.innerHTML = "";
 
-      users.forEach(user => {
+      users.forEach((user, index) => {
         let li = document.createElement("li");
-        li.textContent = user.email;
+        li.className = "user-item";
+
+        let span = document.createElement("span");
+        span.textContent = user.email;
+
+        let deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "X";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.onclick = () => deleteUser(index);
+
+        li.appendChild(span);
+        li.appendChild(deleteBtn);
         userList.appendChild(li);
       });
+    }
+
+    function deleteUser(index) {
+      if (confirm("Tem certeza que deseja excluir este usuário?")) {
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        users.splice(index, 1);
+        localStorage.setItem("users", JSON.stringify(users));
+        showUsers();
+      }
     }
 
     function logout() {
