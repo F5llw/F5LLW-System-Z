@@ -15,7 +15,6 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      box-sizing: border-box;
     }
     .container {
       max-width: 500px;
@@ -26,113 +25,65 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       text-align: center;
     }
-    .input {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      background-color: #444;
-      border: 1px solid #555;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 16px;
-    }
-    .button {
-      width: 100%;
-      padding: 15px;
-      background-color: #00bcd4;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .button:hover {
-      background-color: #0097a7;
-    }
-    .link {
-      margin-top: 10px;
-      color: #00bcd4;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-    .dashboard-info {
-      margin-top: 20px;
-      text-align: left;
-    }
-    .user-data {
-      background-color: #444;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-    .user-list {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #3a3d42;
-      border-radius: 8px;
-    }
-    .user-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px;
-      border-bottom: 1px solid #555;
-    }
-    .delete-btn {
-      background-color: #f44336;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .delete-btn:hover {
-      background-color: #d32f2f;
-    }
+    .button { width: 100%; padding: 10px; background-color: #00bcd4; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+    .button:hover { background-color: #0097a7; }
+    .input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #555; background-color: #444; color: #fff; }
+    .admin-section, .comments-container { margin-top: 20px; text-align: left; }
+    .comment, .user { background: #444; padding: 10px; border-radius: 5px; margin: 5px 0; position: relative; }
+    .delete-btn { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; padding: 5px; cursor: pointer; border-radius: 5px; font-size: 12px; }
   </style>
 </head>
 <body>
-  <div id="loginPage" class="container">
-    <h2>Login</h2>
-    <input type="email" id="emailLogin" class="input" placeholder="Email" />
-    <input type="password" id="passwordLogin" class="input" placeholder="Senha" />
-    <button class="button" onclick="handleLogin()">Entrar</button>
-    <p class="link" onclick="showRegister()">Não tem uma conta? Cadastre-se</p>
-  </div>
 
-  <div id="registerPage" class="container" style="display: none;">
+  <!-- Registro -->
+  <div id="registerPage" class="container">
     <h2>Cadastro</h2>
-    <input type="email" id="emailRegister" class="input" placeholder="Email" />
-    <input type="password" id="passwordRegister" class="input" placeholder="Senha" />
+    <input type="email" id="emailRegister" class="input" placeholder="Email">
+    <input type="password" id="passwordRegister" class="input" placeholder="Senha">
     <button class="button" onclick="handleRegister()">Cadastrar</button>
-    <p class="link" onclick="showLogin()">Já tem uma conta? Faça login</p>
+    <p class="button" onclick="showLogin()">Já tem uma conta? Faça login</p>
   </div>
 
+  <!-- Login -->
+  <div id="loginPage" class="container" style="display: none;">
+    <h2>Login</h2>
+    <input type="email" id="emailLogin" class="input" placeholder="Email">
+    <input type="password" id="passwordLogin" class="input" placeholder="Senha">
+    <button class="button" onclick="handleLogin()">Entrar</button>
+    <p class="button" onclick="showRegister()">Não tem uma conta? Cadastre-se</p>
+  </div>
+
+  <!-- Painel -->
   <div id="dashboard" class="container" style="display: none;">
     <h2>Painel</h2>
-    <div class="dashboard-info">
-      <div class="user-data">
-        <h3>Bem-vindo, <span id="userName"></span></h3>
-        <p>Email: <span id="userEmail"></span></p>
-      </div>
-      <div id="adminSection" class="user-list" style="display: none;">
-        <h3>Usuários cadastrados:</h3>
-        <ul id="userList"></ul>
-      </div>
-      <button class="button" onclick="logout()">Sair</button>
+    <p>Bem-vindo, <span id="userName"></span></p>
+
+    <!-- Comentários -->
+    <h3>Comentários</h3>
+    <textarea id="commentInput" class="input" placeholder="Escreva um comentário..."></textarea>
+    <button class="button" onclick="postComment()">Comentar</button>
+    <div id="commentsSection" class="comments-container"></div>
+
+    <!-- Seção de Administração -->
+    <div id="adminSection" class="admin-section" style="display: none;">
+      <h3>Usuários Registrados</h3>
+      <div id="userList"></div>
     </div>
+
+    <button class="button" onclick="logout()">Sair</button>
   </div>
 
   <script>
+    let currentUser = null;
+
     function showRegister() {
-      document.getElementById("loginPage").style.display = "none";
       document.getElementById("registerPage").style.display = "block";
+      document.getElementById("loginPage").style.display = "none";
     }
 
     function showLogin() {
-      document.getElementById("registerPage").style.display = "none";
       document.getElementById("loginPage").style.display = "block";
+      document.getElementById("registerPage").style.display = "none";
     }
 
     function handleRegister() {
@@ -163,7 +114,6 @@
       const password = document.getElementById("passwordLogin").value.trim();
 
       let users = JSON.parse(localStorage.getItem("users")) || [];
-
       let user = users.find(user => user.email === email && user.password === password);
 
       if (user) {
@@ -178,38 +128,77 @@
       document.getElementById("loginPage").style.display = "none";
       document.getElementById("registerPage").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
+      document.getElementById("userName").textContent = user.email;
+      currentUser = user.email;
+      loadComments();
 
-      document.getElementById("userName").textContent = user.email.split('@')[0];
-      document.getElementById("userEmail").textContent = user.email;
-
-      if (user.email === "willianwca2011@gmail.com") {
+      // Se for admin, mostrar usuários cadastrados
+      if (currentUser === "willianwca2011@gmail.com") {
         document.getElementById("adminSection").style.display = "block";
-        showUsers();
-      } else {
-        document.getElementById("adminSection").style.display = "none";
+        loadUsers();
       }
     }
 
-    function showUsers() {
-      let users = JSON.parse(localStorage.getItem("users")) || [];
-      let userList = document.getElementById("userList");
+    function postComment() {
+      const commentText = document.getElementById("commentInput").value.trim();
+      if (!commentText) return;
+
+      let comments = JSON.parse(localStorage.getItem("comments")) || [];
+      comments.push({ email: currentUser, text: commentText });
+      localStorage.setItem("comments", JSON.stringify(comments));
+
+      document.getElementById("commentInput").value = "";
+      loadComments();
+    }
+
+    function loadComments() {
+      const comments = JSON.parse(localStorage.getItem("comments")) || [];
+      const commentsSection = document.getElementById("commentsSection");
+      commentsSection.innerHTML = "";
+
+      comments.forEach((comment, index) => {
+        const commentDiv = document.createElement("div");
+        commentDiv.classList.add("comment");
+        commentDiv.textContent = `${comment.email}: ${comment.text}`;
+
+        if (currentUser === "willianwca2011@gmail.com") {
+          const deleteBtn = document.createElement("button");
+          deleteBtn.classList.add("delete-btn");
+          deleteBtn.textContent = "X";
+          deleteBtn.onclick = () => deleteComment(index);
+          commentDiv.appendChild(deleteBtn);
+        }
+
+        commentsSection.appendChild(commentDiv);
+      });
+    }
+
+    function deleteComment(index) {
+      let comments = JSON.parse(localStorage.getItem("comments")) || [];
+      comments.splice(index, 1);
+      localStorage.setItem("comments", JSON.stringify(comments));
+      loadComments();
+    }
+
+    function loadUsers() {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const userList = document.getElementById("userList");
       userList.innerHTML = "";
 
       users.forEach((user, index) => {
-        let li = document.createElement("li");
-        li.className = "user-item";
+        const userDiv = document.createElement("div");
+        userDiv.classList.add("user");
+        userDiv.textContent = user.email;
 
-        let span = document.createElement("span");
-        span.textContent = user.email;
+        if (user.email !== "willianwca2011@gmail.com") {
+          const deleteBtn = document.createElement("button");
+          deleteBtn.classList.add("delete-btn");
+          deleteBtn.textContent = "X";
+          deleteBtn.onclick = () => deleteUser(index);
+          userDiv.appendChild(deleteBtn);
+        }
 
-        let deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "X";
-        deleteBtn.className = "delete-btn";
-        deleteBtn.onclick = () => deleteUser(index);
-
-        li.appendChild(span);
-        li.appendChild(deleteBtn);
-        userList.appendChild(li);
+        userList.appendChild(userDiv);
       });
     }
 
@@ -217,7 +206,7 @@
       let users = JSON.parse(localStorage.getItem("users")) || [];
       users.splice(index, 1);
       localStorage.setItem("users", JSON.stringify(users));
-      showUsers();
+      loadUsers();
     }
 
     function logout() {
@@ -225,5 +214,6 @@
       showLogin();
     }
   </script>
+
 </body>
 </html>
