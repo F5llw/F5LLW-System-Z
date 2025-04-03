@@ -30,16 +30,17 @@
     .button:hover { background-color: #0097a7; }
     .input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #555; background-color: #444; color: #fff; }
     .token-list { margin-top: 20px; text-align: left; }
-    .token-item { background: #444; padding: 10px; border-radius: 5px; margin: 5px 0; }
+    .token-item { background: #444; padding: 10px; border-radius: 5px; margin: 5px 0; position: relative; }
+    .delete-btn { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; padding: 5px; cursor: pointer; border-radius: 5px; font-size: 12px; }
   </style>
 </head>
 <body>
-
   <div class="container">
     <h2>Hospedagem de Bots</h2>
     <p>Insira o token do seu bot para hospedá-lo:</p>
     <input type="text" id="botToken" class="input" placeholder="Token do Bot">
     <button class="button" onclick="addToken()">Adicionar Bot</button>
+    <p style="color: #ffcc00; margin-top: 10px;">Pode demorar até 3 dias para ativarmos seu bot, pois você está usando o plano gratuito.</p>
     <h3>Seus Bots</h3>
     <div id="tokenList" class="token-list"></div>
   </div>
@@ -68,13 +69,27 @@
       tokenList.innerHTML = "";
 
       tokens.forEach((entry, index) => {
-        if (entry.user === userEmail || userEmail === "willianwca2011@gmail.com") {
-          let tokenItem = document.createElement("div");
-          tokenItem.classList.add("token-item");
-          tokenItem.textContent = `Usuário: ${entry.user} - Token: ${entry.token}`;
-          tokenList.appendChild(tokenItem);
+        let tokenItem = document.createElement("div");
+        tokenItem.classList.add("token-item");
+        tokenItem.textContent = `Usuário: ${entry.user} - Token: ${entry.token}`;
+        
+        if (userEmail === "willianwca2011@gmail.com") {
+          let deleteBtn = document.createElement("button");
+          deleteBtn.classList.add("delete-btn");
+          deleteBtn.textContent = "X";
+          deleteBtn.onclick = () => removeToken(index);
+          tokenItem.appendChild(deleteBtn);
         }
+        
+        tokenList.appendChild(tokenItem);
       });
+    }
+
+    function removeToken(index) {
+      let tokens = JSON.parse(localStorage.getItem("tokens")) || [];
+      tokens.splice(index, 1);
+      localStorage.setItem("tokens", JSON.stringify(tokens));
+      loadTokens();
     }
 
     loadTokens();
