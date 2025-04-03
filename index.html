@@ -50,6 +50,12 @@
     .button:hover {
       background-color: #0097a7;
     }
+    .link {
+      margin-top: 10px;
+      color: #00bcd4;
+      cursor: pointer;
+      text-decoration: underline;
+    }
     .dashboard-info {
       margin-top: 20px;
       text-align: left;
@@ -89,10 +95,18 @@
 <body>
   <div id="loginPage" class="container">
     <h2>Login</h2>
-    <input type="email" id="email" class="input" placeholder="Email" />
-    <input type="password" id="password" class="input" placeholder="Senha" />
+    <input type="email" id="emailLogin" class="input" placeholder="Email" />
+    <input type="password" id="passwordLogin" class="input" placeholder="Senha" />
     <button class="button" onclick="handleLogin()">Entrar</button>
-    <p class="error-message" id="loginError" style="display: none;">Email ou senha incorretos!</p>
+    <p class="link" onclick="showRegister()">Não tem uma conta? Cadastre-se</p>
+  </div>
+
+  <div id="registerPage" class="container" style="display: none;">
+    <h2>Cadastro</h2>
+    <input type="email" id="emailRegister" class="input" placeholder="Email" />
+    <input type="password" id="passwordRegister" class="input" placeholder="Senha" />
+    <button class="button" onclick="handleRegister()">Cadastrar</button>
+    <p class="link" onclick="showLogin()">Já tem uma conta? Faça login</p>
   </div>
 
   <div id="dashboard" class="container" style="display: none;">
@@ -111,10 +125,20 @@
   </div>
 
   <script>
-    function handleLogin() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      
+    function showRegister() {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("registerPage").style.display = "block";
+    }
+
+    function showLogin() {
+      document.getElementById("registerPage").style.display = "none";
+      document.getElementById("loginPage").style.display = "block";
+    }
+
+    function handleRegister() {
+      const email = document.getElementById("emailRegister").value.trim();
+      const password = document.getElementById("passwordRegister").value.trim();
+
       if (!email || !password) {
         alert("Preencha todos os campos!");
         return;
@@ -122,8 +146,26 @@
 
       let users = JSON.parse(localStorage.getItem("users")) || [];
 
+      if (users.some(user => user.email === email)) {
+        alert("Este e-mail já está cadastrado!");
+        return;
+      }
+
+      users.push({ email, password });
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("Cadastro realizado com sucesso!");
+      showLogin();
+    }
+
+    function handleLogin() {
+      const email = document.getElementById("emailLogin").value.trim();
+      const password = document.getElementById("passwordLogin").value.trim();
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+
       let user = users.find(user => user.email === email && user.password === password);
-      
+
       if (user) {
         alert("Login bem-sucedido!");
         showDashboard(user);
@@ -134,12 +176,12 @@
 
     function showDashboard(user) {
       document.getElementById("loginPage").style.display = "none";
+      document.getElementById("registerPage").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
 
       document.getElementById("userName").textContent = user.email.split('@')[0];
       document.getElementById("userEmail").textContent = user.email;
 
-      // Se o usuário for "willianwca2011@gmail.com", mostrar a lista de usuários cadastrados
       if (user.email === "willianwca2011@gmail.com") {
         document.getElementById("adminSection").style.display = "block";
         showUsers();
@@ -172,17 +214,15 @@
     }
 
     function deleteUser(index) {
-      if (confirm("Tem certeza que deseja excluir este usuário?")) {
-        let users = JSON.parse(localStorage.getItem("users")) || [];
-        users.splice(index, 1);
-        localStorage.setItem("users", JSON.stringify(users));
-        showUsers();
-      }
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users.splice(index, 1);
+      localStorage.setItem("users", JSON.stringify(users));
+      showUsers();
     }
 
     function logout() {
       document.getElementById("dashboard").style.display = "none";
-      document.getElementById("loginPage").style.display = "block";
+      showLogin();
     }
   </script>
 </body>
