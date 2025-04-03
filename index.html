@@ -54,6 +54,27 @@
       color: #f44336;
       display: none;
     }
+    .token-list {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .token-item {
+      background: #333;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .delete-button {
+      background: #f44336;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -76,35 +97,30 @@
   </div>
 
   <div id="dashboard" class="container" style="display: none;">
-    <h2>Bem-vindo ao Painel</h2>
-    <p>Você está logado!</p>
+    <h2>Painel</h2>
+    <input type="text" id="tokenInput" class="input" placeholder="Cole seu token aqui" />
+    <button class="button" onclick="addToken()">Salvar Token</button>
+    <div class="token-list" id="tokenList"></div>
     <button class="button" onclick="logout()">Sair</button>
   </div>
 
   <script>
-    async function hashPassword(password) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(password);
-      const hash = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(hash)).map(byte => byte.toString(16).padStart(2, '0')).join('');
-    }
-
-    async function handleRegister() {
+    function handleRegister() {
       const email = document.getElementById("regEmail").value;
-      const password = await hashPassword(document.getElementById("regPassword").value);
+      const password = document.getElementById("regPassword").value;
       let users = JSON.parse(localStorage.getItem("users")) || [];
       if (users.some(user => user.email === email)) {
         document.getElementById("registerError").style.display = "block";
         return;
       }
-      users.push({ email, password });
+      users.push({ email, password, tokens: [] });
       localStorage.setItem("users", JSON.stringify(users));
       showLogin();
     }
 
-    async function handleLogin() {
+    function handleLogin() {
       const email = document.getElementById("email").value;
-      const password = await hashPassword(document.getElementById("password").value);
+      const password = document.getElementById("password").value;
       let users = JSON.parse(localStorage.getItem("users")) || [];
       let user = users.find(user => user.email === email && user.password === password);
       if (user) {
@@ -115,22 +131,45 @@
       }
     }
 
-    function showRegister() {
-      document.getElementById("registerPage").style.display = "block";
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("dashboard").style.display = "none";
+    function addToken() {
+      let user = JSON.parse(localStorage.getItem("user"));
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      let token = document.getElementById("tokenInput").value.trim();
+      if (!token) return alert("Insira um token válido!");
+      let userIndex = users.findIndex(u => u.email === user.email);
+      if (users[userIndex].tokens.length >= 3) {
+        return alert("Você pode armazenar no máximo 3 tokens!");
+      }
+      users[userIndex].tokens.push(token);
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("user", JSON.stringify(users[userIndex]));
+      loadTokens();
     }
 
-    function showLogin() {
-      document.getElementById("registerPage").style.display = "none";
-      document.getElementById("loginPage").style.display = "block";
-      document.getElementById("dashboard").style.display = "none";
+    function removeToken(index) {
+      let user = JSON.parse(localStorage.getItem("user"));
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      let userIndex = users.findIndex(u => u.email === user.email);
+      users[userIndex].tokens.splice(index, 1);
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("user", JSON.stringify(users[userIndex]));
+      loadTokens();
+    }
+
+    function loadTokens() {
+      let user = JSON.parse(localStorage.getItem("user"));
+      let tokenList = document.getElementById("tokenList");
+      tokenList.innerHTML = "";
+      user.tokens.forEach((token, index) => {
+        tokenList.innerHTML += `<div class="token-item"><span>${token}</span><button class="delete-button" onclick="removeToken(${index})">Remover</button></div>`;
+      });
     }
 
     function showDashboard() {
       document.getElementById("registerPage").style.display = "none";
       document.getElementById("loginPage").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
+      loadTokens();
     }
 
     function logout() {
