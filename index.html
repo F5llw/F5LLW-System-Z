@@ -55,6 +55,16 @@
       display: none;
       margin-top: 10px;
     }
+    .dashboard-info {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .user-data {
+      background-color: #444;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 <body>
@@ -78,7 +88,13 @@
 
   <div id="dashboard" class="container" style="display: none;">
     <h2>Painel</h2>
-    <button class="button" onclick="logout()">Sair</button>
+    <div class="dashboard-info">
+      <div class="user-data">
+        <h3>Bem-vindo, <span id="userName"></span></h3>
+        <p>Email: <span id="userEmail"></span></p>
+      </div>
+      <button class="button" onclick="logout()">Sair</button>
+    </div>
   </div>
 
   <script>
@@ -121,7 +137,7 @@
       
       if (user) {
         alert("Login bem-sucedido!");
-        showDashboard();
+        showDashboard(user);
         clearInputs(['email', 'password']);
       } else {
         showError('loginError', 'Email ou senha incorretos!');
@@ -140,10 +156,14 @@
       document.getElementById("dashboard").style.display = "none";
     }
 
-    function showDashboard() {
+    function showDashboard(user) {
       document.getElementById("registerPage").style.display = "none";
       document.getElementById("loginPage").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
+      
+      // Display user data on the dashboard
+      document.getElementById("userName").textContent = user.email.split('@')[0]; // Display part of the email as username
+      document.getElementById("userEmail").textContent = user.email;
     }
 
     function logout() {
