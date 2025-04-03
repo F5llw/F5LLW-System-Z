@@ -24,17 +24,12 @@
       background-color: #2c2f36;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-    h2 {
       text-align: center;
-      font-size: 28px;
-      margin-bottom: 20px;
-      color: #00bcd4;
     }
     .input {
       width: 100%;
       padding: 15px;
-      margin: 15px 0;
+      margin: 10px 0;
       background-color: #444;
       border: 1px solid #555;
       border-radius: 8px;
@@ -55,157 +50,70 @@
     .button:hover {
       background-color: #0097a7;
     }
-    #welcomeMessage {
-      text-align: center;
-      font-size: 22px;
-      margin-top: 20px;
-      color: #81c784;
-    }
-    #logoutButton {
-      margin-top: 20px;
-      background-color: #e91e63;
-    }
-    #logoutButton:hover {
-      background-color: #c2185b;
-    }
-    #loginError {
+    .error-message {
       color: #f44336;
-      text-align: center;
-      font-size: 16px;
       display: none;
-    }
-    #botDetails {
-      margin-top: 20px;
-      display: none;
-      color: #a5d6a7;
-      background-color: #333;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    #botDetails h4 {
-      font-size: 22px;
-      margin-bottom: 10px;
-    }
-    #botDetails p {
-      font-size: 16px;
     }
   </style>
 </head>
 <body>
+  <div id="registerPage" class="container">
+    <h2>Registrar-se</h2>
+    <input type="email" id="regEmail" class="input" placeholder="Email" />
+    <input type="password" id="regPassword" class="input" placeholder="Senha" />
+    <button class="button" onclick="handleRegister()">Registrar</button>
+    <p class="error-message" id="registerError">Usuário já registrado!</p>
+    <p>Já tem uma conta? <a href="#" onclick="showLogin()">Faça login</a></p>
+    <p style="color: #fdd835;">Ainda em manutenção...</p>
+  </div>
 
-  <div id="loginPage" class="container">
-    <h2>F5LLW System</h2>
+  <div id="loginPage" class="container" style="display: none;">
+    <h2>Login</h2>
     <input type="email" id="email" class="input" placeholder="Email" />
     <input type="password" id="password" class="input" placeholder="Senha" />
     <button class="button" onclick="handleLogin()">Entrar</button>
-    <p id="loginError">Email ou senha incorretos!</p>
-  </div>
-
-  <div id="welcomePage" class="container" style="display: none;">
-    <h2>Bem-vindo, <span id="userEmail"></span></h2>
-    <p id="welcomeMessage">Você está logado!</p>
-    <button id="logoutButton" class="button" onclick="handleLogout()">Sair</button>
-
-    <h3>Registrar um Bot Discord</h3>
-    <input type="text" id="botName" class="input" placeholder="Nome do Bot" />
-    <input type="text" id="botDescription" class="input" placeholder="Descrição do Bot" />
-    <input type="text" id="botToken" class="input" placeholder="Token do Bot" />
-    <input type="text" id="botId" class="input" placeholder="ID do Bot" />
-    <button class="button" onclick="saveBotData()">Registrar Bot</button>
-
-    <div id="botDetails">
-      <h4>Detalhes do Bot:</h4>
-      <p id="botNameDisplay"></p>
-      <p id="botDescriptionDisplay"></p>
-      <p id="botTokenDisplay"></p>
-      <p id="botIdDisplay"></p>
-    </div>
+    <p class="error-message" id="loginError">Email ou senha incorretos!</p>
+    <p>Não tem conta? <a href="#" onclick="showRegister()">Cadastre-se</a></p>
   </div>
 
   <script>
-    // Função para simular login
+    function handleRegister() {
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+      
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      if (users.some(user => user.email === email)) {
+        document.getElementById("registerError").style.display = "block";
+        return;
+      }
+      users.push({ email, password });
+      localStorage.setItem("users", JSON.stringify(users));
+      showLogin();
+    }
+
     function handleLogin() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-
-      // Credenciais fixas
-      const validEmail = "willianwca2011@gmail.com";
-      const validPassword = "willian72011";
-
-      if (email === validEmail && password === validPassword) {
-        localStorage.setItem('user', JSON.stringify({ email: email }));
-        redirectToWelcomePage();
-      } else {
-        document.getElementById("loginError").style.display = 'block';
-      }
-    }
-
-    // Função para redirecionar para a página de boas-vindas após o login
-    function redirectToWelcomePage() {
-      const user = JSON.parse(localStorage.getItem('user'));
-      document.getElementById("userEmail").textContent = user.email;
-      document.getElementById("loginPage").style.display = 'none';
-      document.getElementById("welcomePage").style.display = 'block';
-
-      // Exibe detalhes do bot se já estiverem salvos no localStorage
-      const botData = JSON.parse(localStorage.getItem('botData'));
-      if (botData) {
-        displayBotDetails(botData);
-      }
-    }
-
-    // Função para fazer logout
-    function handleLogout() {
-      localStorage.removeItem('user');
-      localStorage.removeItem('botData');
-      redirectToLoginPage();
-    }
-
-    // Função para redirecionar para a página de login
-    function redirectToLoginPage() {
-      document.getElementById("loginPage").style.display = 'block';
-      document.getElementById("welcomePage").style.display = 'none';
-    }
-
-    // Função para salvar os dados do bot
-    function saveBotData() {
-      const botName = document.getElementById("botName").value;
-      const botDescription = document.getElementById("botDescription").value;
-      const botToken = document.getElementById("botToken").value;
-      const botId = document.getElementById("botId").value;
-
-      // Salva os dados do bot no localStorage
-      const botData = {
-        name: botName,
-        description: botDescription,
-        token: botToken,
-        id: botId
-      };
-      localStorage.setItem('botData', JSON.stringify(botData));
-
-      // Exibe os dados do bot registrados
-      displayBotDetails(botData);
-    }
-
-    // Função para exibir os dados do bot registrados
-    function displayBotDetails(botData) {
-      document.getElementById("botNameDisplay").textContent = "Nome: " + botData.name;
-      document.getElementById("botDescriptionDisplay").textContent = "Descrição: " + botData.description;
-      document.getElementById("botTokenDisplay").textContent = "Token: " + botData.token;
-      document.getElementById("botIdDisplay").textContent = "ID: " + botData.id;
-      document.getElementById("botDetails").style.display = 'block';
-    }
-
-    // Verificar se o usuário já está logado ao carregar a página
-    window.onload = function() {
-      const user = localStorage.getItem('user');
+      
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      let user = users.find(user => user.email === email && user.password === password);
+      
       if (user) {
-        redirectToWelcomePage();
+        localStorage.setItem("user", JSON.stringify(user));
+        alert("Login bem-sucedido!");
       } else {
-        redirectToLoginPage();
+        document.getElementById("loginError").style.display = "block";
       }
+    }
+
+    function showRegister() {
+      document.getElementById("registerPage").style.display = "block";
+      document.getElementById("loginPage").style.display = "none";
+    }
+    function showLogin() {
+      document.getElementById("registerPage").style.display = "none";
+      document.getElementById("loginPage").style.display = "block";
     }
   </script>
-
 </body>
 </html>
