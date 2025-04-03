@@ -50,11 +50,6 @@
     .button:hover {
       background-color: #0097a7;
     }
-    .error-message {
-      color: #f44336;
-      display: none;
-      margin-top: 10px;
-    }
     .dashboard-info {
       margin-top: 20px;
       text-align: left;
@@ -65,25 +60,21 @@
       border-radius: 8px;
       margin-bottom: 15px;
     }
+    .user-list {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #3a3d42;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
-  <div id="registerPage" class="container">
-    <h2>Registrar-se</h2>
-    <input type="email" id="regEmail" class="input" placeholder="Email" oninput="hideError('registerError')" />
-    <input type="password" id="regPassword" class="input" placeholder="Senha" oninput="hideError('registerError')" />
-    <button class="button" onclick="handleRegister()">Registrar</button>
-    <p class="error-message" id="registerError">Usuário já registrado!</p>
-    <p>Já tem uma conta? <a href="#" onclick="showLogin(); return false;">Faça login</a></p>
-  </div>
-
-  <div id="loginPage" class="container" style="display: none;">
+  <div id="loginPage" class="container">
     <h2>Login</h2>
-    <input type="email" id="email" class="input" placeholder="Email" oninput="hideError('loginError')" />
-    <input type="password" id="password" class="input" placeholder="Senha" oninput="hideError('loginError')" />
+    <input type="email" id="email" class="input" placeholder="Email" />
+    <input type="password" id="password" class="input" placeholder="Senha" />
     <button class="button" onclick="handleLogin()">Entrar</button>
-    <p class="error-message" id="loginError">Email ou senha incorretos!</p>
-    <p>Não tem conta? <a href="#" onclick="showRegister(); return false;">Cadastre-se</a></p>
+    <p class="error-message" id="loginError" style="display: none;">Email ou senha incorretos!</p>
   </div>
 
   <div id="dashboard" class="container" style="display: none;">
@@ -93,95 +84,67 @@
         <h3>Bem-vindo, <span id="userName"></span></h3>
         <p>Email: <span id="userEmail"></span></p>
       </div>
+      <div id="adminSection" class="user-list" style="display: none;">
+        <h3>Usuários cadastrados:</h3>
+        <ul id="userList"></ul>
+      </div>
       <button class="button" onclick="logout()">Sair</button>
     </div>
   </div>
 
   <script>
-    function handleRegister() {
-      const email = document.getElementById("regEmail").value.trim();
-      const password = document.getElementById("regPassword").value.trim();
-      
-      if (!email || !password) {
-        showError('registerError', 'Preencha todos os campos!');
-        return;
-      }
-
-      let users = JSON.parse(localStorage.getItem("users")) || [];
-      if (users.some(user => user.email === email)) {
-        showError('registerError', 'Usuário já registrado!');
-        return;
-      }
-
-      users.push({ email, password });
-      localStorage.setItem("users", JSON.stringify(users));
-
-      alert("Cadastro realizado com sucesso!");
-      clearInputs(['regEmail', 'regPassword']);
-      showLogin();
-    }
-
     function handleLogin() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
       
       if (!email || !password) {
-        showError('loginError', 'Preencha todos os campos!');
+        alert("Preencha todos os campos!");
         return;
       }
 
       let users = JSON.parse(localStorage.getItem("users")) || [];
-      console.log("Usuários salvos:", users);
 
       let user = users.find(user => user.email === email && user.password === password);
       
       if (user) {
         alert("Login bem-sucedido!");
         showDashboard(user);
-        clearInputs(['email', 'password']);
       } else {
-        showError('loginError', 'Email ou senha incorretos!');
+        alert("Email ou senha incorretos!");
       }
     }
 
-    function showRegister() {
-      document.getElementById("registerPage").style.display = "block";
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("dashboard").style.display = "none";
-    }
-
-    function showLogin() {
-      document.getElementById("registerPage").style.display = "none";
-      document.getElementById("loginPage").style.display = "block";
-      document.getElementById("dashboard").style.display = "none";
-    }
-
     function showDashboard(user) {
-      document.getElementById("registerPage").style.display = "none";
       document.getElementById("loginPage").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
-      
-      // Display user data on the dashboard
-      document.getElementById("userName").textContent = user.email.split('@')[0]; // Display part of the email as username
+
+      document.getElementById("userName").textContent = user.email.split('@')[0];
       document.getElementById("userEmail").textContent = user.email;
+
+      // Se o usuário for "willianwca2011@gmail.com", mostrar a lista de usuários cadastrados
+      if (user.email === "willianwca2011@gmail.com") {
+        document.getElementById("adminSection").style.display = "block";
+        showUsers();
+      } else {
+        document.getElementById("adminSection").style.display = "none";
+      }
+    }
+
+    function showUsers() {
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      let userList = document.getElementById("userList");
+      userList.innerHTML = "";
+
+      users.forEach(user => {
+        let li = document.createElement("li");
+        li.textContent = user.email;
+        userList.appendChild(li);
+      });
     }
 
     function logout() {
-      showLogin();
-    }
-
-    function showError(id, message) {
-      const errorElement = document.getElementById(id);
-      errorElement.textContent = message;
-      errorElement.style.display = "block";
-    }
-
-    function hideError(id) {
-      document.getElementById(id).style.display = "none";
-    }
-
-    function clearInputs(ids) {
-      ids.forEach(id => document.getElementById(id).value = "");
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("loginPage").style.display = "block";
     }
   </script>
 </body>
